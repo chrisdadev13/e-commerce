@@ -2,8 +2,8 @@ import { Document, Model, Schema, Types, model } from "mongoose";
 import { Bcrypt } from "oslo/password";
 
 export enum Role {
-  Admin,
-  Customer,
+  Admin = "Admin",
+  Customer = "Customer",
 }
 
 export interface User {
@@ -34,7 +34,7 @@ const userSchema = new Schema<User, TUserModel>(
       required: true,
     },
     role: {
-      type: Number,
+      type: String,
       enum: Object.values(Role),
       default: Role.Customer,
       required: true,
