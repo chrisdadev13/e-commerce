@@ -9,8 +9,16 @@ export const ZCreationSchema = z.object({
   isAvailable: z.boolean().default(true),
 });
 
-export const ZGetByIdSchema = z.instanceof(Types.ObjectId);
-export const ZGetManyByIdSchema = z.array(z.instanceof(Types.ObjectId));
+export const ZGetByIdSchema = z
+  .instanceof(Types.ObjectId)
+  .or(z.string().transform((val) => Types.ObjectId.createFromHexString(val)));
+
+export const ZGetManyByIdSchema = z.object({
+  ids: z
+    .array(z.instanceof(Types.ObjectId))
+    .or(z.string().transform((val) => Types.ObjectId.createFromHexString(val))),
+});
+
 export const ZListSchema = z.object({
   page: z.number().default(1),
   pageSize: z.number().default(10),
