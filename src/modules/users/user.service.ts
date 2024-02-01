@@ -6,7 +6,7 @@ import { sanitizeUser } from "../../utils/sanitization";
 import jwt from "../../utils/jwt";
 
 const register = async ({ name, email, password, role }: TCreationSchema) => {
-  const doesExist = await UserModel.findOne({ email });
+  const doesExist = await UserModel.exists({ email });
   if (doesExist)
     throw new HTTPException(409, { message: "Email address is already taken" });
 
