@@ -9,7 +9,16 @@ export default function (
 ) {
   return zValidator(target, schema, (result) => {
     if (!result.success) {
-      throw new HTTPException(400, { message: result.error.message });
+      // Where is the error
+      const { path } = result.error.errors[0];
+
+      // What's the cause of the error
+      const { message } = result.error.errors[0];
+
+      const errorMessageFormatted = `${path[0]} field: ${message}`;
+      throw new HTTPException(400, {
+        message: errorMessageFormatted,
+      });
     }
   });
 }
