@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { connectDB } from "./config/db";
 
 import env from "./config/env";
+import user from "./modules/users/user.controller";
 
 const port = env.PORT;
 const app = new Hono();
@@ -13,11 +14,15 @@ app.onError((err, c) => {
     return err.getResponse();
   }
 
+  console.error(err);
+
   return c.json({
     code: 500,
     message: "Something bad happened",
   });
 });
+
+app.route("/users", user);
 
 console.log(`Server is running on port ${port} 🚀`);
 
