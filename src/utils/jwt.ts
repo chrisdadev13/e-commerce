@@ -2,7 +2,7 @@ import env from "../config/env";
 import { sign, verify } from "hono/jwt";
 import { Types } from "mongoose";
 
-const Jwt = () => {
+const jwt = () => {
   const signToken = (id: Types.ObjectId) => {
     return sign(id, env.SECRET_KEY, "HS256");
   };
@@ -24,4 +24,4 @@ const Jwt = () => {
   };
 };
 
-export default Jwt;
+export default jwt;
