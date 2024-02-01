@@ -11,6 +11,7 @@ const ZEnvSchema = z.object({
     .default("development"),
   PORT: z.preprocess((val) => Number(val), z.number().min(1000)),
   DB_URI: z.string().url(),
+  SECRET_KEY: z.string(),
 });
 
 const env = ZEnvSchema.parse(process.env);
