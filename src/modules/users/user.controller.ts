@@ -11,9 +11,9 @@ import validator from "../../utils/validator";
 const user = new Hono();
 
 user.post("/", validator("json", ZCreationSchema), async (ctx) => {
-  const json: TCreationSchema = await ctx.req.json();
+  const body: TCreationSchema = await ctx.req.json();
 
-  const { token, user } = await userService.register(json);
+  const { token, user } = await userService.register(body);
 
   setCookie(ctx, "accessToken", token, COOKIE_OPTIONS);
 

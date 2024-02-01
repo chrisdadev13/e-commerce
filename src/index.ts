@@ -5,6 +5,7 @@ import { connectDB } from "./config/db";
 
 import env from "./config/env";
 import user from "./modules/users/user.controller";
+import product from "./modules/products/product.controller";
 
 const port = env.PORT;
 const app = new Hono();
@@ -23,6 +24,7 @@ app.onError((err, c) => {
 });
 
 app.route("/users", user);
+app.route("/products", product);
 
 console.log(`Server is running on port ${port} 🚀`);
 
