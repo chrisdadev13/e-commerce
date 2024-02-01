@@ -7,10 +7,11 @@
     "dotenv": "^16.4.1",
     "hono": "^3.12.8",
     "mongoose": "^8.1.1",
+    "oslo": "^1.0.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "tsx": "^3.12.2",
-    "@types/node": "^20.11.14"
+    "@types/node": "^20.11.14",
+    "tsx": "^3.12.2"
   }
 }
