@@ -18,6 +18,7 @@ user.post("/", validator("json", ZCreationSchema), async (ctx) => {
   setCookie(ctx, "accessToken", token, COOKIE_OPTIONS);
 
   return ctx.json({
+    token,
     data: user,
   });
 });
