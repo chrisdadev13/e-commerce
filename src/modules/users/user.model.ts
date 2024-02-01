@@ -51,6 +51,7 @@ const userSchema = new Schema<User, TUserModel>(
   },
 );
 
+// Hash password before save - Middleware
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
