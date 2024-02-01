@@ -9,8 +9,14 @@ import {
 } from "./product.schema";
 import { FilterQuery } from "mongoose";
 
-const create = async (product: TCreationSchema) =>
-  await ProductModel.create(product);
+const create = async (product: TCreationSchema) => {
+  const newProduct = new ProductModel(product);
+  await newProduct.save();
+
+  return {
+    id: newProduct._id,
+  };
+};
 
 const update = async (id: TGetByIdSchema, product: TUpdateSchema) => {
   const doesExists = await ProductModel.exists({
@@ -22,10 +28,12 @@ const update = async (id: TGetByIdSchema, product: TUpdateSchema) => {
       message: "The Product with the provided ID doesn't exists",
     });
 
-  const productUpdated = await ProductModel.findByIdAndUpdate(id, product);
+  const productUpdated = await ProductModel.findByIdAndUpdate(
+    id,
+    product,
+  ).lean<Product>();
 
   return {
-    id,
     productUpdated,
   };
 };
@@ -43,11 +51,11 @@ const deleteOne = async (id: TGetByIdSchema) => {
   await ProductModel.deleteOne({ _id: id });
 
   return {
-    id,
+    status: "Deleted ⛔️",
   };
 };
 
-const deleteMany = async (ids: TGetManyByIdSchema) => {
+const deleteMany = async ({ ids }: TGetManyByIdSchema) => {
   const productsToDelete = await ProductModel.find({ _id: { $in: ids } });
 
   if (productsToDelete.length !== ids.length) {
