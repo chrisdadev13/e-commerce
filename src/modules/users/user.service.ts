@@ -1,6 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import { UserModel } from "./user.model";
 import type { TCreationSchema, TLoginSchema } from "./user.schema";
+import type { TGetByIdSchema } from "../../utils/commons";
 import { sanitizeUser } from "../../utils/sanitization";
 
 import jwt from "../../utils/jwt";
@@ -25,8 +26,7 @@ const register = async ({ name, email, password, role }: TCreationSchema) => {
 
 const login = async ({ email, password }: TLoginSchema) => {
   const user = await UserModel.findOne({ email }).select("-password -sessions");
-  if (!user)
-    throw new HTTPException(409, { message: "Email address is already taken" });
+  if (!user) throw new HTTPException(404, { message: "User not found" });
 
   const isPasswordValid = await user.comparePassword(password);
   if (!isPasswordValid)
@@ -42,9 +42,28 @@ const login = async ({ email, password }: TLoginSchema) => {
   };
 };
 
+const logout = async (userId: TGetByIdSchema) => {
+  const user = await UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $set: { sessions: [] },
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!user) throw new HTTPException(404, { message: "User not found" });
+
+  return {
+    userId,
+  };
+};
+
 const userService = {
   register,
   login,
+  logout,
 };
 
 export default userService;
