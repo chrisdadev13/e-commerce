@@ -9,4 +9,10 @@ export const ZCreationSchema = z.object({
   role: z.enum(Roles),
 });
 
+export const ZLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
 export type TCreationSchema = z.infer<typeof ZCreationSchema>;
+export type TLoginSchema = z.infer<typeof ZLoginSchema>;

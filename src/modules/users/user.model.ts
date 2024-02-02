@@ -14,9 +14,13 @@ export interface User {
   sessions: string[];
 }
 
-export type TUserModel = Model<User>;
+export interface TUserDocument
+  extends Document<Types.ObjectId, any, User>,
+    User {
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
-export type TUserDocument = Document<Types.ObjectId, any, User> & User;
+export type TUserModel = Model<TUserDocument>;
 
 const userSchema = new Schema<User, TUserModel>(
   {
@@ -62,5 +66,13 @@ userSchema.pre("save", async function (next) {
 
   return next();
 });
+
+userSchema.methods.comparePassword = async function (
+  this: TUserDocument,
+  candidatePassword: string,
+): Promise<boolean> {
+  const bcrypt = new Bcrypt();
+  return bcrypt.verify(this.password, candidatePassword);
+};
 
 export const UserModel = model<User, TUserModel>("User", userSchema);
