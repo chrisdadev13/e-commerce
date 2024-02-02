@@ -1,5 +1,10 @@
 import { Document, Model, Schema, Types, model } from "mongoose";
 
+interface ProductQuantity {
+  product: Types.ObjectId;
+  quantity: number;
+}
+
 export enum Status {
   Pending = "Pending",
   Processing = "Processing",
@@ -9,12 +14,7 @@ export enum Status {
 
 export interface Order {
   user: Types.ObjectId;
-  products: [
-    {
-      product: Types.ObjectId;
-      quantity: number;
-    },
-  ];
+  products: ProductQuantity[];
   status: Status;
 }
 
