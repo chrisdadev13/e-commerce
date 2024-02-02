@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import env from "./env";
+import { DB_URI } from "./constants";
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect(env.DB_URI);
+    await mongoose.connect(DB_URI);
 
     mongoose.set("toJSON", {
       virtuals: true,
@@ -15,7 +16,7 @@ export const connectDB = async () => {
 
     console.warn(
       `Conntected to ${env.ENV} database! ${
-        env.DB_URI === "production" ? "⛔️" : "⚠️"
+        env.ENV === "production" ? "⛔️" : "⚠️"
       }`,
     );
   } catch (err) {

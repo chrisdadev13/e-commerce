@@ -55,8 +55,10 @@ git clone git@github.com:chrisdadev13/e-commerce.git && cd e-commerce
 #### Setup Environment Variables
 
 ```sh
-NODE_ENV=<'development' | 'production' | 'staging'>
-DB_URI=<URI used to connect to a production MongoDB database>
+NODE_ENV=<'development' | 'production' | 'testing'>
+DB_URI_PROD=<URI used to connect to a production MongoDB database>
+DB_URI_DEV=<URI used to connect to a development MongoDB database>
+DB_URI_TEST=<URI used to connect to a testing MongoDB database>
 PORT=<The port the server will run on, e.g. 3000>
 SECRET_KEY=<Secret used to sign the session ID cookie>
 ```

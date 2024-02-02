@@ -10,7 +10,9 @@ const ZEnvSchema = z.object({
     ])
     .default("development"),
   PORT: z.preprocess((val) => Number(val), z.number().min(1000)),
-  DB_URI: z.string().url(),
+  DB_URI_PROD: z.string().url(),
+  DB_URI_DEV: z.string().url(),
+  DB_URI_TEST: z.string().url(),
   SECRET_KEY: z.string(),
 });
 
