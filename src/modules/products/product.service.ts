@@ -1,16 +1,27 @@
 import { HTTPException } from "hono/http-exception";
-import { Product, ProductModel } from "./product.model";
+import { Product, ProductModel, TProductDocument } from "./product.model";
+import { type TCreationSchema, type TUpdateSchema } from "./product.schema";
 import {
-  TCreationSchema,
-  TGetByIdSchema,
-  TGetManyByIdSchema,
-  TListSchema,
-  TUpdateSchema,
-} from "./product.schema";
+  type TGetByIdSchema,
+  type TListSchema,
+  type TGetManyByIdSchema,
+} from "../../utils/commons";
 import { FilterQuery } from "mongoose";
 
-const create = async (product: TCreationSchema) => {
-  const newProduct = new ProductModel(product);
+const create = async ({
+  name,
+  description,
+  price,
+  stock,
+  isAvailable,
+}: TCreationSchema) => {
+  const newProduct = new ProductModel({
+    name,
+    description,
+    price,
+    stock,
+    isAvailable,
+  });
   await newProduct.save();
 
   return {
@@ -18,7 +29,20 @@ const create = async (product: TCreationSchema) => {
   };
 };
 
-const update = async (id: TGetByIdSchema, product: TUpdateSchema) => {
+const getById = async (id: TGetByIdSchema) => {
+  const product = await ProductModel.findById(id).lean<TProductDocument>();
+
+  if (!product) throw new HTTPException(404, { message: "Product not found" });
+
+  return {
+    product,
+  };
+};
+
+const update = async (
+  id: TGetByIdSchema,
+  { name, description, price, stock, isAvailable }: TUpdateSchema,
+) => {
   const doesExists = await ProductModel.exists({
     _id: id,
   });
@@ -30,7 +54,16 @@ const update = async (id: TGetByIdSchema, product: TUpdateSchema) => {
 
   const productUpdated = await ProductModel.findByIdAndUpdate(
     id,
-    product,
+    {
+      name,
+      description,
+      price,
+      stock,
+      isAvailable,
+    },
+    {
+      new: true,
+    },
   ).lean<Product>();
 
   return {
@@ -39,11 +72,11 @@ const update = async (id: TGetByIdSchema, product: TUpdateSchema) => {
 };
 
 const deleteOne = async (id: TGetByIdSchema) => {
-  const doesExists = await ProductModel.exists({
+  const doesExist = await ProductModel.exists({
     _id: id,
   });
 
-  if (!doesExists)
+  if (!doesExist)
     throw new HTTPException(404, {
       message: "The Product with the provided ID doesn't exists",
     });
@@ -106,6 +139,7 @@ const productService = {
   update,
   deleteOne,
   deleteMany,
+  getById,
   listAvailable,
 };
 

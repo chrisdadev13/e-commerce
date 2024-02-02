@@ -26,10 +26,12 @@ const productSchema = new Schema<Product, TProductModel>(
     stock: {
       type: Number,
       required: true,
+      default: 1,
     },
     isAvailable: {
       type: Boolean,
       required: true,
+      default: true,
     },
   },
   {

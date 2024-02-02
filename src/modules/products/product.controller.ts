@@ -1,82 +1,22 @@
+import { ZCreationSchema, ZUpdateSchema } from "./product.schema";
+import {
+  ZListSchema,
+  ZGetManyByIdSchema,
+  ZGetByIdParam,
+} from "../../utils/commons";
+import { Types } from "mongoose";
 import { Hono } from "hono";
 
-import {
-  TCreationSchema,
-  TGetManyByIdSchema,
-  TUpdateSchema,
-  ZCreationSchema,
-  ZGetByIdSchema,
-  ZGetManyByIdSchema,
-  ZListSchema,
-  ZUpdateSchema,
-} from "./product.schema";
-import { Types } from "mongoose";
 import productService from "./product.service";
 import validator from "../../utils/validator";
+import auth from "../../middlewares/auth";
+import rbac from "../../middlewares/rbac";
+import { Role } from "../users/user.model";
 
 const product = new Hono();
 
-product.post("/", validator("json", ZCreationSchema), async (ctx) => {
-  const body: TCreationSchema = await ctx.req.json();
-
-  const { id } = await productService.create(body);
-
-  return ctx.json({
-    data: {
-      id,
-    },
-  });
-});
-
-product.put(
-  "/:id",
-  validator("param", ZGetByIdSchema),
-  validator("json", ZUpdateSchema),
-  async (ctx) => {
-    const id = ctx.req.param("id");
-    const body: TUpdateSchema = await ctx.req.json();
-
-    const { productUpdated } = await productService.update(
-      new Types.ObjectId(id),
-      body,
-    );
-
-    return ctx.json({
-      data: {
-        id,
-        productUpdated,
-      },
-    });
-  },
-);
-
-product.delete("/:id", validator("param", ZGetByIdSchema), async (ctx) => {
-  const id = ctx.req.param("id");
-
-  const { status } = await productService.deleteOne(new Types.ObjectId(id));
-
-  return ctx.json({
-    data: {
-      id,
-      status,
-    },
-  });
-});
-
-product.delete("/many", validator("json", ZGetManyByIdSchema), async (ctx) => {
-  const body: TGetManyByIdSchema = await ctx.req.json();
-
-  const { deletedCount } = await productService.deleteMany(body);
-
-  return ctx.json({
-    data: {
-      deletedCount,
-    },
-  });
-});
-
 product.get("/", validator("query", ZListSchema), async (ctx) => {
-  const { page, pageSize } = ctx.req.query();
+  const { page, pageSize } = ctx.req.valid("query");
 
   const { currentPage, totalPages, total, products } =
     await productService.listAvailable({
@@ -93,5 +33,90 @@ product.get("/", validator("query", ZListSchema), async (ctx) => {
     },
   });
 });
+
+product.get("/:id", validator("param", ZGetByIdParam), async (ctx) => {
+  const { id } = ctx.req.valid("param");
+
+  const { product } = await productService.getById(id);
+
+  return ctx.json({
+    data: {
+      product,
+    },
+  });
+});
+
+product.post("/", auth, validator("json", ZCreationSchema), async (ctx) => {
+  const body = ctx.req.valid("json");
+
+  const { id } = await productService.create(body);
+
+  return ctx.json({
+    data: {
+      id,
+    },
+  });
+});
+
+product.put(
+  "/:id",
+  auth,
+  rbac(Role.Admin),
+  validator("param", ZGetByIdParam),
+  validator("json", ZUpdateSchema),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+    const body = ctx.req.valid("json");
+
+    const { productUpdated } = await productService.update(
+      new Types.ObjectId(id),
+      body,
+    );
+
+    return ctx.json({
+      data: {
+        id,
+        productUpdated,
+      },
+    });
+  },
+);
+
+product.delete(
+  "/:id",
+  auth,
+  rbac(Role.Admin),
+  validator("param", ZGetByIdParam),
+  async (ctx) => {
+    const { id } = ctx.req.valid("param");
+
+    const { status } = await productService.deleteOne(new Types.ObjectId(id));
+
+    return ctx.json({
+      data: {
+        id,
+        status,
+      },
+    });
+  },
+);
+
+product.delete(
+  "/many",
+  auth,
+  rbac(Role.Admin),
+  validator("json", ZGetManyByIdSchema),
+  async (ctx) => {
+    const { ids } = ctx.req.valid("json");
+
+    const { deletedCount } = await productService.deleteMany({ ids });
+
+    return ctx.json({
+      data: {
+        deletedCount,
+      },
+    });
+  },
+);
 
 export default product;
