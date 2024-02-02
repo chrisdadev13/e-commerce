@@ -1,6 +1,6 @@
 import { Document, Model, Schema, Types, model } from "mongoose";
 
-enum Status {
+export enum Status {
   Pending = "Pending",
   Processing = "Processing",
   Shipped = "Shipped",
@@ -33,8 +33,14 @@ const orderSchema = new Schema<Order, TOrderModel>({
       product: {
         type: Schema.Types.ObjectId,
         ref: "Product",
+        required: true,
       },
-      quantity: Number,
+      quantity: {
+        type: Number,
+        default: 1,
+        min: 1,
+        required: true,
+      },
     },
   ],
   status: {

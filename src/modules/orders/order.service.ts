@@ -1,9 +1,14 @@
 import { HTTPException } from "hono/http-exception";
 import { Order, OrderModel } from "./order.model";
-import { type TCreationSchema } from "./order.schema";
+import {
+  TUpdateSchema,
+  type TCreationSchema,
+  TStatusSchema,
+} from "./order.schema";
 import { type TGetByIdSchema, type TListSchema } from "../../utils/commons";
 import { ProductModel } from "../products/product.model";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
+import { Status } from "./order.model";
 
 const create = async ({
   user,
@@ -41,14 +46,16 @@ const create = async ({
     status,
   });
 
-  await order.save();
+  productInfo.stock -= quantity;
+
+  await Promise.all([order.save(), productInfo.save()]);
 
   return {
     id: order._id,
   };
 };
 
-const listOrdersByUser = async (
+const listByUser = async (
   userId: TGetByIdSchema,
   { page = 1, pageSize = 10 }: TListSchema,
 ) => {
@@ -73,9 +80,110 @@ const listOrdersByUser = async (
   };
 };
 
+const getOne = async (userId: TGetByIdSchema, id: TGetByIdSchema) => {
+  const order = await OrderModel.findOne({ _id: id, user: userId });
+  if (!order) throw new HTTPException(404, { message: "Order not found" });
+
+  return {
+    order,
+  };
+};
+
+const updateQuantity = async (
+  userId: TGetByIdSchema,
+  id: TGetByIdSchema,
+  { product, quantity }: TUpdateSchema,
+) => {
+  const order = await OrderModel.findOne({
+    _id: id,
+    user: userId,
+  });
+  if (!order) throw new HTTPException(404, { message: "Order not found" });
+
+  const selectedProduct = await ProductModel.findById(product);
+
+  if (!selectedProduct)
+    throw new HTTPException(404, { message: "Product not found" });
+
+  if (quantity > selectedProduct.stock || !selectedProduct.isAvailable) {
+    throw new HTTPException(200, {
+      message: "Product is so good that is not available anymore 🙂",
+    });
+  }
+
+  const newOrderProducts = order.products.map((orderProduct) => {
+    if (product.equals(orderProduct.product)) {
+      if (orderProduct.quantity > quantity) {
+        const change = orderProduct.quantity - quantity;
+        selectedProduct.stock += change;
+
+        return {
+          product,
+          quantity,
+        };
+      }
+
+      const change = quantity - orderProduct.quantity;
+      selectedProduct.stock -= change;
+      return {
+        product,
+        quantity,
+      };
+    }
+    return orderProduct;
+  });
+
+  order.products = newOrderProducts as [
+    { product: Types.ObjectId; quantity: number },
+  ];
+
+  await Promise.all([order.save(), selectedProduct.save()]);
+
+  return {
+    newQuantity: quantity,
+    status: "Updated",
+  };
+};
+
+const updateStatus = async (id: TGetByIdSchema, status: TStatusSchema) => {
+  const order = await OrderModel.findOne({
+    _id: id,
+  });
+  if (!order) throw new HTTPException(404, { message: "Order not found" });
+
+  order.status = Status[status];
+
+  await order.save();
+
+  return {
+    status,
+  };
+};
+
+const deleteOne = async (userId: TGetByIdSchema, id: TGetByIdSchema) => {
+  const doesExist = await OrderModel.exists({
+    _id: id,
+    user: userId,
+  });
+
+  if (!doesExist)
+    throw new HTTPException(404, {
+      message: "The Order with the provided ID doesn't exists",
+    });
+
+  await ProductModel.deleteOne({ _id: id });
+
+  return {
+    status: "Deleted ⛔️",
+  };
+};
 const orderService = {
   create,
-  listOrdersByUser,
+  listByUser,
+  getOne,
+  updateQuantity,
+  updateStatus,
+  deleteOne,
 };
 
 export default orderService;
