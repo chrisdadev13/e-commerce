@@ -1,7 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
 import { ValidationTargets } from "hono";
-import { ZodType, ZodTypeDef } from "zod";
+import { ZodType, ZodTypeDef, z } from "zod";
 import { HTTPException } from "hono/http-exception";
+import { Types } from "mongoose";
+
+export const ZodObjectId = z
+  .instanceof(Types.ObjectId)
+  .or(z.string().transform((val) => Types.ObjectId.createFromHexString(val)));
 
 export default function (
   target: keyof ValidationTargets,

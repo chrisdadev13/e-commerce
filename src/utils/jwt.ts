@@ -1,5 +1,5 @@
 import env from "../config/env";
-import { sign, verify } from "hono/jwt";
+import { sign, verify, decode } from "hono/jwt";
 import { Types } from "mongoose";
 
 const jwt = () => {
@@ -18,9 +18,14 @@ const jwt = () => {
     }
   };
 
+  const decodeToken = async (tokenToDecode: string) => {
+    return decode(tokenToDecode);
+  };
+
   return {
     signToken,
     verifyToken,
+    decodeToken,
   };
 };
 
