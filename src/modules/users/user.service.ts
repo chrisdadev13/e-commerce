@@ -7,7 +7,9 @@ import { sanitizeUser } from "../../utils/sanitization";
 import jwt from "../../utils/jwt";
 
 const register = async ({ name, email, password, role }: TCreationSchema) => {
-  const doesExist = await UserModel.exists({ email });
+  const doesExist = await UserModel.exists({
+    email: email.trim().toLowerCase(),
+  });
   if (doesExist)
     throw new HTTPException(409, { message: "Email address is already taken" });
 
@@ -25,7 +27,7 @@ const register = async ({ name, email, password, role }: TCreationSchema) => {
 };
 
 const login = async ({ email, password }: TLoginSchema) => {
-  const user = await UserModel.findOne({ email }).select("-password -sessions");
+  const user = await UserModel.findOne({ email: email.trim().toLowerCase() });
   if (!user) throw new HTTPException(404, { message: "User not found" });
 
   const isPasswordValid = await user.comparePassword(password);
@@ -37,7 +39,7 @@ const login = async ({ email, password }: TLoginSchema) => {
   await user.save();
 
   return {
-    user,
+    user: sanitizeUser(user.toJSON()),
     token,
   };
 };

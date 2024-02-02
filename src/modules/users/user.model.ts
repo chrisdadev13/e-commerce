@@ -1,5 +1,5 @@
 import { Document, Model, Schema, Types, model } from "mongoose";
-import { Bcrypt } from "oslo/password";
+import { Argon2id } from "oslo/password";
 
 export enum Role {
   Admin = "Admin",
@@ -59,8 +59,9 @@ const userSchema = new Schema<User, TUserModel>(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
-  const bcrypt = new Bcrypt();
-  const hashedPassword = await bcrypt.hash(this.password);
+  const argon2id = new Argon2id();
+  //const hashedPassword = await bcrypt.hash(this.password);
+  const hashedPassword = await argon2id.hash(this.password);
 
   this.password = hashedPassword;
 
@@ -71,8 +72,10 @@ userSchema.methods.comparePassword = async function (
   this: TUserDocument,
   candidatePassword: string,
 ): Promise<boolean> {
-  const bcrypt = new Bcrypt();
-  return bcrypt.verify(this.password, candidatePassword);
+  const argon2id = new Argon2id();
+  console.log(this);
+
+  return await argon2id.verify(this.password, candidatePassword);
 };
 
 export const UserModel = model<User, TUserModel>("User", userSchema);

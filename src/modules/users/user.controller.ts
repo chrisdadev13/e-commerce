@@ -23,7 +23,9 @@ const user = new Hono();
 user.post("/", validator("json", ZCreationSchema), async (ctx) => {
   const body: TCreationSchema = await ctx.req.json();
 
-  const { token, user } = await userService.register(body);
+  const { token, user } = await userService.register(
+    ZCreationSchema.parse(body),
+  );
 
   setCookie(ctx, "accessToken", token, COOKIE_OPTIONS);
 
@@ -36,7 +38,7 @@ user.post("/", validator("json", ZCreationSchema), async (ctx) => {
 user.post("/login", validator("json", ZLoginSchema), async (ctx) => {
   const body: TLoginSchema = ctx.req.valid("json");
 
-  const { token, user } = await userService.login(body);
+  const { token, user } = await userService.login(ZLoginSchema.parse(body));
 
   setCookie(ctx, "accessToken", token, COOKIE_OPTIONS);
 

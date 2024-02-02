@@ -46,17 +46,23 @@ product.get("/:id", validator("param", ZGetByIdParam), async (ctx) => {
   });
 });
 
-product.post("/", auth, validator("json", ZCreationSchema), async (ctx) => {
-  const body = ctx.req.valid("json");
+product.post(
+  "/",
+  auth,
+  rbac(Role.Admin),
+  validator("json", ZCreationSchema),
+  async (ctx) => {
+    const body = ctx.req.valid("json");
 
-  const { id } = await productService.create(body);
+    const { id } = await productService.create(body);
 
-  return ctx.json({
-    data: {
-      id,
-    },
-  });
-});
+    return ctx.json({
+      data: {
+        id,
+      },
+    });
+  },
+);
 
 product.put(
   "/:id",

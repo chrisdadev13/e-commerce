@@ -11,11 +11,11 @@ import { FilterQuery, Types } from "mongoose";
 import { Status } from "./order.model";
 
 const create = async ({
-  user,
+  userId,
   product,
   quantity,
   status = "Processing",
-}: TCreationSchema) => {
+}: TCreationSchema & { userId: Types.ObjectId }) => {
   const productInfo = await ProductModel.findOne({
     _id: product,
   }).select("_id stock isAvailable");
@@ -36,7 +36,7 @@ const create = async ({
     });
 
   const order = new OrderModel({
-    user,
+    user: userId,
     products: [
       {
         product,
@@ -64,7 +64,15 @@ const listByUser = async (
   const query: FilterQuery<Order> = { user: userId };
   const [total, orders] = await Promise.allSettled([
     OrderModel.countDocuments(query),
-    OrderModel.find(query).skip(skip).limit(pageSize).lean<Order>(),
+    OrderModel.find(query)
+      .skip(skip)
+      .limit(pageSize)
+      .populate({
+        path: "products.product",
+        select: "name description price",
+      })
+      .select("-products._id -__v")
+      .lean<Order>(),
   ]);
 
   if (total.status === "rejected" || orders.status === "rejected")
@@ -81,7 +89,10 @@ const listByUser = async (
 };
 
 const getOne = async (userId: TGetByIdSchema, id: TGetByIdSchema) => {
-  const order = await OrderModel.findOne({ _id: id, user: userId });
+  const order = await OrderModel.findOne({ _id: id, user: userId }).populate({
+    path: "products.product",
+    select: "name description price",
+  });
   if (!order) throw new HTTPException(404, { message: "Order not found" });
 
   return {

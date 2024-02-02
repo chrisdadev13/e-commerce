@@ -4,7 +4,6 @@ import { ZodObjectId } from "../../utils/validator";
 const Status = ["Pending", "Processing", "Shipped", "Delivered"] as const;
 
 export const ZCreationSchema = z.object({
-  user: ZodObjectId,
   product: ZodObjectId,
   quantity: z.number(),
   status: z.enum(Status),
@@ -16,6 +15,9 @@ export const ZUpdateSchema = z.object({
 });
 
 export const ZStatusSchema = z.enum(Status);
+export const ZStatusParamSchema = z.object({
+  status: z.enum(Status),
+});
 
 export type TCreationSchema = z.infer<typeof ZCreationSchema>;
 export type TUpdateSchema = z.infer<typeof ZUpdateSchema>;

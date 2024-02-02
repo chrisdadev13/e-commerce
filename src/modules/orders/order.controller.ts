@@ -1,7 +1,12 @@
 import { Hono } from "hono";
 
 import { ZGetByIdParam } from "../../utils/commons";
-import { ZCreationSchema, ZStatusSchema, ZUpdateSchema } from "./order.schema";
+import {
+  ZCreationSchema,
+  ZStatusParamSchema,
+  ZStatusSchema,
+  ZUpdateSchema,
+} from "./order.schema";
 import { Role } from "../users/user.model";
 
 import { Types } from "mongoose";
@@ -20,8 +25,9 @@ order.post(
   validator("json", ZCreationSchema),
   async (ctx) => {
     const body = ctx.req.valid("json");
+    const { _id: userId } = ctx.get("user");
 
-    const { id } = await orderService.create(body);
+    const { id } = await orderService.create({ userId, ...body });
 
     return ctx.json({
       data: {
@@ -84,7 +90,7 @@ order.put(
   auth,
   rbac(Role.Admin),
   validator("param", ZGetByIdParam),
-  validator("query", ZStatusSchema),
+  validator("query", ZStatusParamSchema),
   async (ctx) => {
     const id = ctx.req.param("id");
     const { status } = ctx.req.valid("query");
