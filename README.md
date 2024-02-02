@@ -67,12 +67,23 @@ SECRET_KEY=<Secret used to sign the session ID cookie>
 pnpm i
 pnpm dev
 ```
+
 ## Notes
 
 ### Database Schema
+
 <img width="511" alt="Captura de pantalla 2024-02-02 a la(s) 1 21 53 p  m" src="https://github.com/chrisdadev13/e-commerce/assets/92900301/0f0cd057-5ee1-4762-856c-b34858dec1c3">
 
-#### Enums
+### Enums
+
 <img width="115" alt="Captura de pantalla 2024-02-02 a la(s) 1 22 21 p  m" src="https://github.com/chrisdadev13/e-commerce/assets/92900301/1a9eb5ea-bb5d-4a06-a0bd-61e743c1b690">
 
 <img width="114" alt="Captura de pantalla 2024-02-02 a la(s) 1 22 42 p  m" src="https://github.com/chrisdadev13/e-commerce/assets/92900301/45053135-ab10-4422-806c-5c221d08879d">
+
+## Authentication
+
+For users authentication I used JWT tokens which are stored on client side as cookies (accessToken). The access token expires every 30 days and is used for short and long term authentication until I add the refresh token.
+
+### Security
+
+Access tokens are stored in database and are verified on each token refresh. If token gets stolen user can use "Logout from all sessions" option to remove all tokens from database so they can'tbe used to access anymore.
