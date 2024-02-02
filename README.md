@@ -4,7 +4,7 @@
 
 The main technologies used are:
 
-- [Hono](https://hono.dev/): Framework for building efficient, scalable and blazingly fast 😉 server-side applications in Node, Bun or Deno.
+- [Hono](https://hono.dev/): Framework for building efficient, scalable and blazingly fast 😉 server-side applications in Node
 - [Typescript](https://www.typescriptlang.org/): Strongly typed 💪 programming language that builds on JavaScript
 - [Mongo](https://www.mongodb.com/): Non-relational database management system. 🤷‍♂️
 - [Mongoose](https://mongoosejs.com/): Elegant 🎩 MongoDB object modeling for Node.js
