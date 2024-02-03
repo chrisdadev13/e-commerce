@@ -10,6 +10,7 @@ The main technologies used are:
 - [Mongoose](https://mongoosejs.com/): Elegant 🎩 MongoDB object modeling for Node.js
 
 ## Endpoints
+[API DOCUMENTATION](https://ecommerce.apidocumentation.com/version-0/guide/getting-started)
 
 ---
 
@@ -17,7 +18,7 @@ The main technologies used are:
 
 | Description              | Method | URL              |
 | ------------------------ | ------ | ---------------- |
-| Register                 | POST   | api/users/       |
+| Register                 | POST   | api/users        |
 | Login                    | POST   | api/users/login  |
 | Logout from all sessions | POST   | api/users/logout |
 | User orders              | GET    | api/users/orders |
@@ -26,9 +27,9 @@ The main technologies used are:
 
 | Description    | Method | URL              |
 | -------------- | ------ | ---------------- |
-| Get available  | GET    | api/products/    |
+| Get available  | GET    | api/products     |
 | Get one by Id  | GET    | api/products/:id |
-| Create product | POST   | api/products/    |
+| Create product | POST   | api/products     |
 | Update product | PUT    | api/products/:id |
 | Delete product | DELETE | api/products/:id |
 
@@ -36,7 +37,7 @@ The main technologies used are:
 
 | Description                   | Method | URL                     |
 | ----------------------------- | ------ | ----------------------- |
-| Create order                  | POST   | api/orders/             |
+| Create order                  | POST   | api/orders              |
 | Get one by Id                 | GET    | api/orders/:id          |
 | Update order product quantity | PUT    | api/orders/:id/quantity |
 | Update order status           | PUT    | api/orders/:id/status   |
